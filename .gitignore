@@ -1,0 +1,19 @@
+# C++ Build Files
+*.o
+*.obj
+*.exe
+*.out
+*.a
+*.so
+*.dll
+
+# Avoid committing stuff if we accidentally build colcon workspace from within the workspace
+build/
+install/
+log/
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+CMakeLists.txt.user
+
