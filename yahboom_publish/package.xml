@@ -11,6 +11,10 @@
 
   <depend>rclcpp</depend>
   <depend>image_color_lab</depend>
+  <depend>cv_bridge</depend>
+  <depend>image_transport</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
