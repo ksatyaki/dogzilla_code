@@ -37,7 +37,7 @@ ORDER = {
     "ROLL": [0x62, 0],
     "PITCH": [0x63, 0],
     "YAW": [0x64, 0],
-    "IMU_RAW":[0x65, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128]
+    "IMU_RAW": [0x65, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128]
 }
 
 """
@@ -46,10 +46,13 @@ PARAM is used to store the parameter limit range of the robot dog
 """
 
 PARAM = {
-    "TRANSLATION_LIMIT": [35, 19.5, [75, 115]], # X Y Z 平移范围 Scope of translation
-    "ATTITUDE_LIMIT": [20, 22, 16],           # Roll Pitch Yaw 姿态范围 Scope of posture
+    # X Y Z 平移范围 Scope of translation
+    "TRANSLATION_LIMIT": [35, 19.5, [75, 115]],
+    # Roll Pitch Yaw 姿态范围 Scope of posture
+    "ATTITUDE_LIMIT": [20, 22, 16],
     "LEG_LIMIT": [35, 19.5, [75, 115]],         # 腿长范围 Scope of the leg
-    "MOTOR_LIMIT": [[-73, 57], [-66, 93], [-31, 31]], # 下 中 上 舵机范围 Lower, middle and upper steering gear range
+    # 下 中 上 舵机范围 Lower, middle and upper steering gear range
+    "MOTOR_LIMIT": [[-73, 57], [-66, 93], [-31, 31]],
     "PERIOD_LIMIT": [[1.5, 8]],
     "MARK_TIME_LIMIT": [10, 35],  # 原地踏步高度范围 Stationary height range
     "VX_LIMIT": 25,    # X速度范围 X velocity range
@@ -224,7 +227,8 @@ class DOGZILLA():
         if index == -1:
             print("ERROR!Direction must be 'x', 'y' or 'z'")
             return
-        ORDER["TRANSLATION"][index] = conver2u8(data, PARAM["TRANSLATION_LIMIT"][index - 1])
+        ORDER["TRANSLATION"][index] = conver2u8(
+            data, PARAM["TRANSLATION_LIMIT"][index - 1])
         self.__send("TRANSLATION", index)
 
     def translation(self, direction, data):
@@ -246,7 +250,8 @@ class DOGZILLA():
         if index == -1:
             print("ERROR!Direction must be 'r', 'p' or 'y'")
             return
-        ORDER["ATTITUDE"][index] = conver2u8(data, PARAM["ATTITUDE_LIMIT"][index - 1])
+        ORDER["ATTITUDE"][index] = conver2u8(
+            data, PARAM["ATTITUDE_LIMIT"][index - 1])
         self.__send("ATTITUDE", index)
 
     def attitude(self, direction, data):
@@ -305,7 +310,8 @@ class DOGZILLA():
             self.__send("LEG_POS", index)
 
     def __motor(self, index, data):
-        ORDER["MOTOR_ANGLE"][index] = conver2u8(data, PARAM["MOTOR_LIMIT"][index % 3 - 1])
+        ORDER["MOTOR_ANGLE"][index] = conver2u8(
+            data, PARAM["MOTOR_LIMIT"][index % 3 - 1])
         self.__send("MOTOR_ANGLE", index)
 
     def motor(self, motor_id, data):
@@ -361,7 +367,8 @@ class DOGZILLA():
         if period == 0:
             ORDER["PERIODIC_ROT"][index] = 0
         else:
-            ORDER["PERIODIC_ROT"][index] = conver2u8(period, PARAM["PERIOD_LIMIT"][0], mode=1)
+            ORDER["PERIODIC_ROT"][index] = conver2u8(
+                period, PARAM["PERIOD_LIMIT"][0], mode=1)
         self.__send("PERIODIC_ROT", index)
 
     def periodic_rot(self, direction, period):
@@ -386,7 +393,8 @@ class DOGZILLA():
         if period == 0:
             ORDER["PERIODIC_TRAN"][index] = 0
         else:
-            ORDER["PERIODIC_TRAN"][index] = conver2u8(period, PARAM["PERIOD_LIMIT"][0], mode=1)
+            ORDER["PERIODIC_TRAN"][index] = conver2u8(
+                period, PARAM["PERIOD_LIMIT"][0], mode=1)
         self.__send("PERIODIC_TRAN", index)
 
     def periodic_tran(self, direction, period):
@@ -411,7 +419,8 @@ class DOGZILLA():
         if data == 0:
             ORDER["MarkTime"][1] = 0
         else:
-            ORDER["MarkTime"][1] = conver2u8(data, PARAM["MARK_TIME_LIMIT"], mode=1)
+            ORDER["MarkTime"][1] = conver2u8(
+                data, PARAM["MARK_TIME_LIMIT"], mode=1)
         self.__send("MarkTime")
 
     def pace(self, mode):
@@ -474,14 +483,14 @@ class DOGZILLA():
         only effective when control the steering gear separately
         """
         if speed < 0 or speed > 255:
-            print("ERROR!Illegal Value!The speed parameter needs to be between 0 and 255!")
+            print(
+                "ERROR!Illegal Value!The speed parameter needs to be between 0 and 255!")
             return
         if speed == 0:
             speed = 1
         ORDER["MOTOR_SPEED"][1] = speed
         self.__send("MOTOR_SPEED")
 
-    
     def read_motor(self, out_int=False):
         """
         读取12个舵机的角度 Read the angles of the 12 steering gear
@@ -492,7 +501,8 @@ class DOGZILLA():
         angle = []
         if self.__unpack():
             for i in range(12):
-                index = round(conver2float(self.rx_data[i], PARAM["MOTOR_LIMIT"][i % 3]), 2)
+                index = round(conver2float(
+                    self.rx_data[i], PARAM["MOTOR_LIMIT"][i % 3]), 2)
                 if out_int:
                     if index > 0:
                         angle.append(int(index+0.5))
@@ -559,7 +569,6 @@ class DOGZILLA():
             tmp = int(yaw)
             return tmp
         return round(yaw, 2)
-
 
     def __unpack_imu_raw(self):
         '''
@@ -643,7 +652,9 @@ class DOGZILLA():
                     elif self.rx_FLAG == 6:
                         for i in self.rx_data[0:(self.rx_LEN - 8)]:
                             rx_CHECK = rx_CHECK + i
-                        rx_CHECK = 255 - (self.rx_LEN + self.rx_TYPE + self.rx_ADDR + rx_CHECK) % 256
+                        rx_CHECK = 255 - \
+                            (self.rx_LEN + self.rx_TYPE +
+                             self.rx_ADDR + rx_CHECK) % 256
                         if num == rx_CHECK:
                             self.rx_FLAG = 7
                         else:

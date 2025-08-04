@@ -1,0 +1,26 @@
+services:
+  dogzilla:
+    platform: "linux/arm64"
+    container_name: dogzilla
+    image: ksatyaki/dogzilla_code:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    network_mode: host
+    environment:
+      DISPLAY: :0      
+      ROS_DOMAIN_ID: 165
+      CYCLONEDDS_URI: /home/ros/ws/src/cyclonedds.xml
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /dev/bus/usb:/dev/bus/usb:rw
+      - /dev:/dev
+      - /tmp:/tmp
+    privileged: true
+    group_add:
+      - video
+      - dialout
+    tty: true
+    command: tail -f /dev/null
+    restart: always
+      
