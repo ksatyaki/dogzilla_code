@@ -41,11 +41,20 @@ RUN sudo apt update && \
     sudo apt autoremove -y && \
     sudo rm -rf /var/lib/apt/lists/*
 
+RUN sudo apt update && \
+    sudo apt install ros-humble-foxglove-bridge -y && \
+    sudo apt install -y ros-${ROS_DISTRO}-slam-toolbox && \
+    sudo apt install -y ros-${ROS_DISTRO}-robot-localization \
+    ros-${ROS_DISTRO}-navigation2 && \
+    sudo apt install tmux emacs htop wget curl nano python3-pip -y && \
+    sudo apt autoremove -y && \
+    sudo rm -rf /var/lib/apt/lists/*
+
+RUN sudo pip3 install paho-mqtt utm xacro pyserial
+
 # Building dependencies #
-RUN echo ${USER} && mkdir -p $DEPENDENCIES_WS/src
-WORKDIR $DEPENDENCIES_WS
-COPY --chown=ros:ros ros_dependencies.repos ros_dependencies.repos
-RUN vcs import src < ros_dependencies.repos
+COPY --chown=ros:ros . ${DEPENDENCIES_WS}/src
+WORKDIR ${DEPENDENCIES_WS}
 #RUN cd src/dogzilla_code/yahboom_color_identify_interfaces && touch COLCON_IGNORE
 RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
     sudo apt update && \
@@ -55,16 +64,11 @@ RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
     sudo apt autoremove -y && \
     sudo rm -rf /var/lib/apt/lists/*
 
-RUN cd src/dogzilla_code/yahboom_color_identify_interfaces && touch COLCON_IGNORE
-RUN cd src/dogzilla_code/yahboom_publish && touch COLCON_IGNORE
+RUN cd src/yahboom_color_identify_interfaces && touch COLCON_IGNORE
+RUN cd src/yahboom_publish && touch COLCON_IGNORE
 
 RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
     colcon build --merge-install --symlink-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython3_EXECUTABLE=/usr/bin/python3
-
-RUN sudo apt update && \
-    sudo apt install ros-humble-foxglove-bridge -y &&\
-    sudo apt autoremove -y && \
-    sudo rm -rf /var/lib/apt/lists/*
 
 RUN bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
 RUN sed -i 's/font/pure/g' ${HOME}/.bashrc
@@ -72,13 +76,3 @@ RUN sed -i 's/font/pure/g' ${HOME}/.bashrc
 RUN echo "if [ -f $WS/install/setup.bash ]; then source $WS/install/setup.bash; fi" >> ${HOME}/.bashrc
 RUN echo "export RCUTILS_COLORIZED_OUTPUT=1" >> ${HOME}/.bashrc
 RUN echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> ${HOME}/.bashrc
-
-RUN sudo apt update && \
-    sudo apt install -y ros-${ROS_DISTRO}-slam-toolbox && \
-    sudo apt install -y ros-${ROS_DISTRO}-robot-localization \
-    ros-${ROS_DISTRO}-navigation2 && \
-    sudo apt install tmux emacs htop wget curl nano python3-pip -y && \
-    sudo apt autoremove -y && \
-    sudo rm -rf /var/lib/apt/lists/*
-
-RUN sudo pip3 install paho-mqtt utm xacro pyserial
