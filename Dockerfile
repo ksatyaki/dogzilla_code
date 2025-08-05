@@ -59,6 +59,10 @@ WORKDIR ${DEPENDENCIES_WS}
 RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
     sudo apt update && \
     sudo apt dist-upgrade -y && \
+    sudo apt autoremove -y && \
+    sudo rm -rf /var/lib/apt/lists/*
+
+RUN sudo apt update && \
     rosdep update && \
     rosdep install --from-paths src --ignore-src -y --rosdistro ${ROS_DISTRO} --skip-keys "roslib gazebo-ros gazebo-plugins" && \
     sudo apt autoremove -y && \
